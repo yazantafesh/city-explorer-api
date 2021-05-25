@@ -21,7 +21,6 @@ server.get('/weather', (req, res) => {
 
     let allWeatherData = weatherData.find(element => {
         if (weatherNameData == element.city_name.toLowerCase() && weatherLatData == element.lat && weatherLonData == element.lon) {
-            error = true;
             return element;
         }
     })
@@ -47,7 +46,7 @@ server.get('/weather', (req, res) => {
         res.send(forecastArray);
 
     } catch {
-        res.send('Weather data for this city is not found');
+        res.status(500).send('Weather data for this city is not found');
     }
 })
 
