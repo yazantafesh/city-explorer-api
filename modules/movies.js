@@ -1,6 +1,9 @@
 const axios = require('axios');
+const { response } = require('express');
 
 module.exports = movieHandler;
+
+let inMemory = {};
 
 function movieHandler(req, res) {
 
@@ -9,18 +12,31 @@ function movieHandler(req, res) {
     let movieUrl = `https://api.themoviedb.org/3/search/movie?api_key=${key}&query=${movieQuery}`;
     // let movieUrl = `https://api.themoviedb.org/3/search/movie?api_key=506d0b8623be28cadfcac3e1d0be27b5&query=seattle`;
 
-    axios
-        .get(movieUrl)
-        .then(result => {
-            const movieArray = result.data.results.map(movieItem => {
-                return new Movie(movieItem);
-            })
-            res.send(movieArray);
-        })
-        .catch(err => {
+    if (inMemory[movieQuery] !== undefined) {
 
-            res.status(500).send(`Movie data related to this city is not found ${err}`);
-        })
+        console.log('get the data from the Memory');
+        
+        res.send(inMemory[movieQuery]);
+        
+    } else{
+
+        console.log('get the data from the API');
+
+        axios
+            .get(movieUrl)
+            .then(result => {
+                const movieArray = result.data.results.map(movieItem => {
+                    return new Movie(movieItem);
+                })
+                inMemory[movieQuery] = movieArray;
+                res.send(movieArray);
+            })
+            .catch(err => {
+    
+                res.status(500).send(`Movie data related to this city is not found ${err}`);
+            })
+    }
+    
 }
 
 class Movie {
